@@ -16,15 +16,23 @@ permutations = {
 }
 
 #convert a decimal number into binary number and print it
-def decimalToBinary(n):
+def decimalToBinaryRecurse(n, binArray):
 
     if(n > 1):
         # divide with integral result
         # (discard remainder)
-        decimalToBinary(n//2)
+        decimalToBinaryRecurse(n//2, binArray)
 
+    binArray.append(n%2)
+    # print(n%2, end=' ')
 
-    print(n%2, end=' ')
+#this is the helper function for the recurse function
+#takes decimal base number as input
+#returns an list containing the equivalent binary number
+def decimalToBinary(n):
+    binArray = [] #declaring the list here to pass it to the recurse function
+    decimalToBinaryRecurse(n, binArray) #call the actual conversion function
+    return binArray
 
 #split input string of binary numbers into a list of binary numbers
 #takes in a ' ' separated string
@@ -41,5 +49,8 @@ def applyP(charList, permutationName):
         result.append(charList[index - 1])
     return result
 
-print(stringToList("A B C D E F G H I J"))
-print(applyP(stringToList("A B C D E F G H I J"), "IP"))
+# print(stringToList("A B C D E F G H I J"))
+# print(applyP(stringToList("A B C D E F G H I J"), "IP"))
+binary = decimalToBinary(15)
+for i in range(len(binary)):
+    print(binary[i], end=" ")
