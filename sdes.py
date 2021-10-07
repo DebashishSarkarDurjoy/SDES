@@ -1,4 +1,3 @@
-import numpy as np
 import math
 
 IP = [2, 6, 3, 1, 4, 8, 5 , 7]
@@ -68,86 +67,70 @@ def stringToList(input):
 #the list of string and returns the result as a list
 def applyP(charList, permutationName):
     result = []
-    for index in permutations[permutationName]:
+    for index in permutations[permutationName]: #uses the values from the dictionary
         result.append(charList[index - 1])
     return result
 
+#performs the binary left shift by popping the first element and
+#inserting it at the end
+#calling it n times will perform left-shift-n
+#returns the result as a list
 def leftShift(arr):
-    leftHalf = arr[: 5]
-    rightHalf = arr[5: ]
+    leftHalf = arr[: 5] #takes only the left side 5 digits
+    rightHalf = arr[5: ] #takes only the right side 5 digits
 
-    temp = leftHalf.pop(0)
-    leftHalf.append(temp)
-    temp = rightHalf.pop(0)
-    rightHalf.append(temp)
+    temp = leftHalf.pop(0) #removes the first element, stores it in temp
+    leftHalf.append(temp) #inserts the temp at the end
+    temp = rightHalf.pop(0) #removes the first element, stores it in temp
+    rightHalf.append(temp) #inserts the temp at the end
 
     return leftHalf + rightHalf
 
+#performs binary XOR operation
+#returns a list
 def XOR(arr1, arr2):
     result = []
     for i in range(len(arr1)):
-        if arr1[i] != arr2[i]:
+        if arr1[i] != arr2[i]: #if two digits are different, it appends 1
             result.append(1)
         else:
-            result.append(0)
+            result.append(0) #otherwise appends 0
     return result
 
+#converts list containing binary numbers into its decimal base equivalent
 def binToDec(arr):
     result = 0
-    for i in range(len(arr)):
+    for i in range(len(arr)): #loops over the lenght of arr
         if arr[i] == 1:
+            #this is basically this: result = result + 2 ^ position of 1 in arr
             result = result + math.pow(2, len(arr) - i - 1)
     return int(result)
 
+#takes a row and col integer and returns a value from the corresponding
+#row and col in the 2d list S0
 def valToS0(row, col):
     return S0[row][col]
 
+#takes a row and col integer and returns a value from the corresponding
+#row and col in the 2d list S1
 def valToS1(row, col):
     return S1[row][col]
 
-def tillSW(arr, leftHalf, rightHalf):
+#the function that uses K1
+#takes in an array, Key1 and a boolean value
+def fk1(arr, K1, decryption = False):
+    #takes the left-portion of arr and applies E/P
+    rightEP = applyP(arr[4: ], "E_P")
+    #then performs XOR on the returned value
+    rightEP = XOR(rightEP, K1)
     r1 = []
     c1 = []
-    r1.append(arr[0])
-    r1.append(arr[3])
-    c1.append(arr[1])
-    c1.append(arr[2])
-
-    r2 = []
-    c2 = []
-    r2.append(arr[4])
-    r2.append(arr[7])
-    c2.append(arr[5])
-    c2.append(arr[6])
-
-
-    leftPart = decimalToBinary(valToS0(binToDec(r1), binToDec(c1)), 2)
-    rightPart = decimalToBinary(valToS1(binToDec(r2), binToDec(c2)), 2)
-
-    print(leftPart)
-    print(rightPart)
-
-    temp = leftPart + rightPart
-
-    temp = applyP(temp, "P4")
-
-    temp = XOR(temp, leftHalf)
-
-    switched = rightHalf + temp
-
-    return switched
-
-def finalSteps(switchedArr, K2):
-    rightEP = applyP(switchedArr[4: ], "E_P")
-    rightEP = XOR(rightEP, K2)
-    print(rightEP)
-    r1 = []
-    c1 = []
+    #gets the row and col to fetch data from S0
     r1.append(rightEP[0])
     r1.append(rightEP[3])
     c1.append(rightEP[1])
     c1.append(rightEP[2])
-
+    #gets the row and col to fetch data from S1
     r2 = []
     c2 = []
     r2.append(rightEP[4])
@@ -155,78 +138,140 @@ def finalSteps(switchedArr, K2):
     c2.append(rightEP[5])
     c2.append(rightEP[6])
 
+    #gets binary equivalent of the left part
     leftPart = decimalToBinary(valToS0(binToDec(r1), binToDec(c1)), 2)
+    #gets binary equivalent of the right part
     rightPart = decimalToBinary(valToS1(binToDec(r2), binToDec(c2)), 2)
-    print(leftPart)
-    print(rightPart)
-    temp = leftPart + rightPart
-    print(temp)
-    temp = applyP(temp, "P4")
-    print(temp)
-    temp = XOR(temp, switchedArr[: 4])
-    print(temp)
-    temp = temp + switchedArr[4: ]
-    print(temp)
-    temp = applyP(temp, "IP-1")
 
+    temp = leftPart + rightPart
+    temp = applyP(temp, "P4") #applies P4 on the result
+    temp = XOR(temp, arr[: 4]) #applies XOR on temp and righ-portion of arr
+    temp = temp + arr[4: ] #concatenates left-portion of arr with temp
+    if decryption == True:
+        #if decrypting then apply IP-1 and return the result
+        tempIPinverse = applyP(temp, "IP-1")
+        return tempIPinverse
+
+    #otherwise perform switch and return the result
+    switched = arr[4:] + temp
+    return switched
+
+#the function that uses K2
+#takes in an array, Key2 and a boolean value
+def fk2(arr, K2, decryption = False):
+    #takes the left-portion of arr and applies E/P
+    rightEP = applyP(arr[4: ], "E_P")
+    #then performs XOR on the returned value
+    rightEP = XOR(rightEP, K2)
+
+    r1 = []
+    c1 = []
+    #gets the row and col to fetch data from S0
+    r1.append(rightEP[0])
+    r1.append(rightEP[3])
+    c1.append(rightEP[1])
+    c1.append(rightEP[2])
+
+    r2 = []
+    c2 = []
+    #gets the row and col to fetch data from S1
+    r2.append(rightEP[4])
+    r2.append(rightEP[7])
+    c2.append(rightEP[5])
+    c2.append(rightEP[6])
+
+    #gets binary equivalent of the left part
+    leftPart = decimalToBinary(valToS0(binToDec(r1), binToDec(c1)), 2)
+    #gets binary equivalent of the right part
+    rightPart = decimalToBinary(valToS1(binToDec(r2), binToDec(c2)), 2)
+
+    temp = leftPart + rightPart
+    temp = applyP(temp, "P4") #applies P4 on the result
+    temp = XOR(temp, arr[: 4]) #applies XOR on temp and righ-portion of arr
+    if decryption == True:
+        #if decrypting then perform switch and return the result
+        switched = arr[4:] + temp
+        return switched
+
+    #otherwise perform concatenation with the left-portion of arr
+    temp = temp + arr[4:]
+    temp = applyP(temp, "IP-1") #apply IP-1 on temp and return temp
     return temp
+
+
+def decrypt():
+    #get use input for Ciphertext
+    inputTEXT = input("Enter Ciphertext: ")
+    inputArr = []
+    for c in inputTEXT:
+        inputArr.append(int(c))
+
+    #get use input for Key
+    inputKEY = input("Enter K: ")
+    inputKey = []
+    for c in inputKEY:
+        inputKey.append(int(c))
+
+
+    print("K1: ", end="")
+    K1 = applyP(leftShift(applyP(inputKey, "P10")), "P8")
+    print(K1)
+
+    print("K2: ", end="")
+    K2 = applyP((leftShift(leftShift(leftShift(applyP(inputKey, "P10"))))), "P8")
+    print(K2)
+
+    result = applyP(inputArr, "IP")
+
+    result = fk2(result, K2, decryption = True)
+
+    result = fk1(result, K1, decryption = True)
+    print("Plaintext: ", end="")
+    print(result)
+
 
 # print(stringToList("A B C D E F G H I J"))
 # print(applyP(stringToList("A B C D E F G H I J"), "IP"))
 def encrypt():
-    binary = [1, 1, 0, 0, 1, 1, 0, 0]
+    #get use input for Plaintext
+    inputTEXT = input("Enter Plaintext: ")
+    inputArr = []
+    for c in inputTEXT:
+        inputArr.append(int(c))
 
-binary = [1, 1, 0, 0, 1, 1, 0, 0]
-print("Original T: ")
-for i in range(len(binary)):
-    print(f'{binary[i]}', end=" ")
+    #get user input for Key
+    inputKEY = input("Enter Key: ")
+    inputKey = []
+    for c in inputKEY:
+        inputKey.append(int(c))
 
-print()
+    inputIP = applyP(inputArr, "IP")
 
-binaryIP = applyP(binary, "IP")
-print("IP on Text: ")
-for i in range(len(binaryIP)):
-    print(f'{binaryIP[i]}', end=" ")
-leftHalf = binaryIP[: 4]
-rightHalf = binaryIP[4: ]
-print()
+    print("K1: ", end="")
+    K1 = applyP(leftShift(applyP(inputKey, "P10")), "P8")
+    print(K1)
 
-rightEP = applyP(binaryIP[-4:], "E_P")
-print("RightEP: ")
-for i in range(len(rightEP)):
-    print(f'{rightEP[i]}', end=" ")
+    print("K2: ", end="")
+    K2 = applyP((leftShift(leftShift(leftShift(applyP(inputKey, "P10"))))), "P8")
+    print(K2)
 
-print()
 
-inputKey = [1,1,1,0,0, 1,1,0,0,1]
+    result = fk1(inputIP, K1)
 
-print()
-K1 = applyP(leftShift(applyP(inputKey, "P10")), "P8")
-print("K1: ")
-for i in range(len(K1)):
-    print(f'{K1[i]}', end=" ")
+    result = fk2(result, K2)
 
-print()
-K2 = applyP((leftShift(leftShift(leftShift(applyP(inputKey, "P10"))))), "P8")
-print("K2: ")
-for i in range(len(K2)):
-    print(f'{K2[i]}', end=" ")
+    print("Ciphertext: ", end="")
+    print(result)
 
-print()
 
-print(rightEP)
-result = XOR(rightEP, K1)
-print(result)
+def showMenu():
+    print("1. Encrypt.")
+    print("2. Decrypt.")
+    option = input(">> ")
+    return int(option)
 
-switchedArr = tillSW(result, leftHalf, rightHalf)
-print(switchedArr)
-
-print("Final steps to ciphertext")
-print(finalSteps(switchedArr, K2))
-
-print()
-print()
-print("Decryption")
-ciphertext = [1, 1, 1, 0, 0, 1, 0, 1]
-uptoSW = finalSteps(ciphertext, K2)
-print(uptoSW)
+option = showMenu()
+if option == 1:
+    encrypt()
+else:
+    decrypt()
