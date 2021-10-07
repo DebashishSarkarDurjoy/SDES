@@ -1,5 +1,3 @@
-import math
-
 IP = [2, 6, 3, 1, 4, 8, 5 , 7]
 IPinverse = [4, 1, 3, 5, 7, 2, 8, 6]
 P10 = [3, 5, 2, 7, 4, 10, 1, 9, 8, 6]
@@ -86,6 +84,11 @@ def leftShift(arr):
 
     return leftHalf + rightHalf
 
+def powerOf2(power):
+    result = 1
+    for i in range(power):
+        result = 2 * result
+    return int(result)
 #performs binary XOR operation
 #returns a list
 def XOR(arr1, arr2):
@@ -103,7 +106,7 @@ def binToDec(arr):
     for i in range(len(arr)): #loops over the lenght of arr
         if arr[i] == 1:
             #this is basically this: result = result + 2 ^ position of 1 in arr
-            result = result + math.pow(2, len(arr) - i - 1)
+            result = result + powerOf2(len(arr) - i - 1)
     return int(result)
 
 #takes a row and col integer and returns a value from the corresponding
