@@ -1,3 +1,5 @@
+
+# S-DES functions in the form of list
 IP = [2, 6, 3, 1, 4, 8, 5 , 7]
 IPinverse = [4, 1, 3, 5, 7, 2, 8, 6]
 P10 = [3, 5, 2, 7, 4, 10, 1, 9, 8, 6]
@@ -5,13 +7,14 @@ P8 = [6, 3, 7, 4, 8, 5, 10, 9]
 E_P = [4, 1, 2, 3, 2, 3, 4, 1]
 P4 = [2, 4, 3, 1]
 
+# the S0 table as 2d list
 S0 = [
     [1, 0, 3, 2],
     [3, 2, 1, 0],
     [0, 2, 1, 3],
     [3, 1, 3, 2]
 ]
-
+# the S1 table as 2d list
 S1 = [
     [0, 1, 2, 3],
     [2, 0, 1, 3],
@@ -217,14 +220,18 @@ def decrypt():
 
 
     print("K1: ", end="")
+    # applies P10 on inputKey, then left-shift then P8
     K1 = applyP(leftShift(applyP(inputKey, "P10")), "P8")
     print(K1)
 
     print("K2: ", end="")
+    # applies P10 on inputKey,
+    # then left-shift 3x
+    # then applies P8
     K2 = applyP((leftShift(leftShift(leftShift(applyP(inputKey, "P10"))))), "P8")
     print(K2)
 
-    result = applyP(inputArr, "IP")
+    result = applyP(inputArr, "IP") # applies IP on inputArr
 
     result = fk2(result, K2, decryption = True)
 
@@ -248,13 +255,17 @@ def encrypt():
     for c in inputKEY:
         inputKey.append(int(c))
 
-    inputIP = applyP(inputArr, "IP")
+    inputIP = applyP(inputArr, "IP") # applies IP on inputArr
 
     print("K1: ", end="")
+    # applies P10 on inputKey, then left-shift then P8
     K1 = applyP(leftShift(applyP(inputKey, "P10")), "P8")
     print(K1)
 
     print("K2: ", end="")
+    # applies P10 on inputKey,
+    # then left-shift 3x
+    # then applies P8
     K2 = applyP((leftShift(leftShift(leftShift(applyP(inputKey, "P10"))))), "P8")
     print(K2)
 
@@ -266,7 +277,8 @@ def encrypt():
     print("Ciphertext: ", end="")
     print(result)
 
-
+# this function shows the menu and expects a user input
+# calls the appropriate function based on the user input
 def showMenu():
     print("1. Encrypt.")
     print("2. Decrypt.")
